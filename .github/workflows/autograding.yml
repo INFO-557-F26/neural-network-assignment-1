@@ -1,0 +1,31 @@
+name: Autograding
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout submission
+        uses: actions/checkout@v4
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GRADER_APP_ID }}
+          private-key: ${{ secrets.GRADER_APP_PRIVATE_KEY }}
+          owner: AI-Sandbox-AI-Healthcare
+          repositories: private-instructor-graders
+
+      - name: Run hidden tests
+        uses: AI-Sandbox-AI-Healthcare/custom-python-grader@main
+        with:
+          course: INFO-557
+          assignment: hw01
+          version: v1
+        env:
+          GRADER_TOKEN: ${{ steps.app-token.outputs.token }}
+
